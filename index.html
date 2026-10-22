@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>Archetype Quest Quiz</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>html{color-scheme:light dark}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column like a character sheet; archetype colors appear only as swatches and blend bars. */
+:root{
+  --bg:#F2F1F8; --surface:#FFFFFF; --ink:#1B1730; --muted:#5F5978; --line:#D8D5E6; --soft:#E9E7F3;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14121F; --surface:#1E1B2E; --ink:#EFEDF8; --muted:#A6A0C0; --line:#37324E; --soft:#28243B; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#14121F; --surface:#1E1B2E; --ink:#EFEDF8; --muted:#A6A0C0; --line:#37324E; --soft:#28243B; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5}
+.wrap{max-width:640px;margin:0 auto;padding-inline:20px;padding-block:28px 56px;display:flex;flex-direction:column;gap:24px}
+h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.12;margin:0;text-wrap:balance}
+h1{font-size:clamp(2.1rem,8vw,3rem);letter-spacing:-0.02em}
+h2{font-size:clamp(1.35rem,5vw,1.7rem);letter-spacing:-0.01em}
+h3{font-size:1.1rem}
+p{margin:0}
+.muted{color:var(--muted)}
+.label{font-size:.78rem;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+.stack{display:flex;flex-direction:column;gap:14px}
+.stack-lg{display:flex;flex-direction:column;gap:24px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px 6px 8px;border:1px solid var(--line);border-radius:999px;font-size:.92rem;font-weight:500;background:var(--surface)}
+.chip.missing{background:transparent;border-style:dashed;color:var(--muted)}
+.dot{width:14px;height:14px;border-radius:50%;flex:none;box-shadow:0 0 0 1px var(--line)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.btn{min-height:48px;padding:10px 22px;border-radius:12px;border:2px solid var(--ink);background:var(--ink);color:var(--bg);font-weight:600}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.row .grow{flex:1}
+.facts{display:grid;gap:10px;padding:0;margin:0;list-style:none}
+.facts li{padding-left:18px;position:relative}
+.facts li::before{content:"";position:absolute;left:0;top:.62em;width:8px;height:2px;background:var(--ink)}
+
+.progress{height:6px;background:var(--soft);border-radius:999px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--ink);border-radius:999px;transition:width .25s ease}
+@media (prefers-reduced-motion: reduce){.progress i{transition:none}}
+.answers{display:grid;gap:10px}
+.answer{display:flex;align-items:center;gap:12px;width:100%;text-align:left;min-height:56px;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:var(--surface)}
+.answer span.t{flex:1;min-width:0}
+.answer .rank{flex:none;min-width:44px;text-align:center;font-size:.78rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-radius:999px;background:var(--soft);color:var(--muted);visibility:hidden}
+.answer.r1,.answer.r2{border-color:var(--ink)}
+.answer.r1 .rank{visibility:visible;background:var(--ink);color:var(--bg)}
+.answer.r2 .rank{visibility:visible;color:var(--ink)}
+
+.blendbar{display:flex;gap:3px;height:22px;border-radius:8px;overflow:hidden}
+.blendbar i{display:block;height:100%}
+.blendrow{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:baseline;padding-block:10px;border-top:1px solid var(--line)}
+.blendrow .dot{align-self:center}
+.blendrow .pct{font-family:var(--display);font-weight:700;font-size:1.25rem;font-variant-numeric:tabular-nums}
+.blendrow .gift{grid-column:2 / 4;font-size:.95rem}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.kv{display:grid;gap:4px}
+.quest{padding-block:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.note{font-size:.9rem;color:var(--muted)}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+
+  <section id="intro" class="stack-lg">
+    <div class="stack">
+      <p class="label">Real life as a quest</p>
+      <h1>Which archetypes are you?</h1>
+      <p>Answer 22 short questions and get your blend: up to four archetypes, ranked by how strongly each one shows up in you. Then see which quests fit you and who you should look for to complete your party.</p>
+    </div>
+    <ul class="facts">
+      <li>About five minutes.</li>
+      <li>For each question, tap your first choice. You can tap a second one too if it also fits.</li>
+      <li>Many questions ask what you actually did last time. If it never happened, pick the closest thing you remember, or skip.</li>
+    </ul>
+    <div class="row"><button class="btn" id="startBtn" type="button">Start the quiz</button><button class="btn ghost" id="restartIntroBtn" type="button" hidden>Start over</button></div>
+    <div class="stack">
+      <p class="label">The eleven archetypes</p>
+      <div class="chips" id="allChips"></div>
+    </div>
+  </section>
+
+  <section id="quiz" class="stack-lg" hidden>
+    <div class="stack">
+      <div class="row"><p class="label grow" id="qCount"></p></div>
+      <div class="progress"><i id="bar"></i></div>
+    </div>
+    <h2 id="qText"></h2>
+    <div class="answers" id="answers"></div>
+    <p class="note" id="qHint"></p>
+    <div class="row">
+      <button class="btn ghost" id="backBtn" type="button">Back</button>
+      <span class="grow"></span>
+      <button class="btn ghost" id="skipBtn" type="button">Skip</button>
+      <button class="btn" id="nextBtn" type="button">Next</button>
+    </div>
+  </section>
+
+  <section id="result" class="stack-lg" hidden>
+    <div class="stack">
+      <p class="label">Your blend</p>
+      <h1 id="rTitle"></h1>
+      <p id="rLead"></p>
+    </div>
+    <div class="stack">
+      <div class="blendbar" id="blendBar"></div>
+      <div id="blendRows"></div>
+    </div>
+    <div class="panel" id="mainPanel"></div>
+    <div class="stack">
+      <h2>Quests that fit you</h2>
+      <p class="muted">Each quest needs a core party of three. Filled chips are roles your blend already covers. Dashed chips are the people to go find.</p>
+      <div id="quests"></div>
+    </div>
+    <div class="row">
+      <button class="btn" id="copyBtn" type="button">Copy my result</button>
+      <button class="btn ghost" id="retakeBtn" type="button">Retake the quiz</button>
+    </div>
+    <p class="note" id="copyNote"></p>
+    <p class="note">This is a first draft of the quiz, not tested psychology. Your result stays on this device only.</p>
+  </section>
+
+</div>
+
+<script>
+const A = {
+  warrior:{n:'Warrior',c:'#DC143C',sub:'Protector, Competitor, Strategist, Champion',gift:'Steps up under pressure and defends the team and its goal.',gap:'Can turn everything into a fight. Struggles to rest or back down.',needs:['healer','sage']},
+  entertainer:{n:'Entertainer',c:'#E6B000',sub:'Performer, Charmer, Humorist, Showrunner',gift:'Lifts morale and draws people and attention to the cause.',gap:'Loses interest without an audience. Avoids dull detail work.',needs:['engineer','leader']},
+  healer:{n:'Healer',c:'#2FAE6B',sub:'Empath, Restorer, Counselor, Provider',gift:'Notices who is struggling and restores people and relationships.',gap:'Carries too much of other people\'s load. Avoids conflict and hard calls.',needs:['warrior','leader']},
+  engineer:{n:'Engineer',c:'#1F55C4',sub:'Builder, Systems Thinker, Optimizer, Inventor',gift:'Turns ideas into things that actually work.',gap:'Can get lost perfecting the machine and forget the people it is for.',needs:['visionary','healer']},
+  leader:{n:'Leader',c:'#5C86F2',sub:'Commander, Coordinator, Diplomat, Motivator',gift:'Gives direction, makes decisions, and keeps everyone moving together.',gap:'Can take over and stop listening.',needs:['sage','rebel']},
+  challenger:{n:'Challenger',c:'#B026FF',sub:'Tactician, Speedrunner, Completionist, Puzzle Solver',gift:'Loves a hard problem with clear rules. Learns fast and keeps trying until it is mastered.',gap:'Loses interest when there is no clear win. Can chase the score and forget the purpose.',needs:['visionary','explorer']},
+  explorer:{n:'Explorer',c:'#0E9AA0',sub:'Adventurer, Seeker, Pathfinder, Wanderer',gift:'Goes first into the unknown and brings back new options.',gap:'Restless. Tends to leave before the job is finished.',needs:['engineer','challenger']},
+  creator:{n:'Creator',c:'#E0218A',sub:'Artist, Designer, Storyteller, Maker',gift:'Gives the work form, beauty, and a story people care about.',gap:'Perfectionism. Takes criticism personally and struggles with deadlines.',needs:['leader','engineer']},
+  sage:{n:'Sage',c:'#5746C9',sub:'Analyst, Philosopher, Researcher, Mentor',gift:'Understands deeply, spots mistakes before they happen, and teaches others.',gap:'Overthinks and is slow to act. Ideas can stay too abstract to land with people.',needs:['warrior','entertainer']},
+  rebel:{n:'Rebel',c:'#FF4500',sub:'Disruptor, Maverick, Firebrand, Nonconformist',gift:'Questions what everyone else accepts and says the uncomfortable thing.',gap:'Can oppose out of habit. Tears down without building a replacement.',needs:['engineer','healer']},
+  visionary:{n:'Visionary',c:'#A070F5',sub:'Futurist, Dreamer, Innovator, Catalyst',gift:'Sees what could exist and gets people to believe in it.',gap:'Skips the steps between today and the dream.',needs:['engineer','creator']}
+};
+const ORDER = Object.keys(A);
+
+const Q = [
+ ['Think of the last time a group project was going wrong close to the deadline. What did you do first?',1,[['Took the hardest part myself and pushed through.','warrior'],['Got everyone laughing so the energy came back.','entertainer'],['Found what was actually broken and fixed it.','engineer'],['Reworked it into a simpler version that still looked good.','creator']]],
+ ['Think of the last party or event where you knew almost nobody. Where did you end up?',1,[['In the middle of the room, telling a story.','entertainer'],['Next to the one person who looked left out.','healer'],['Introducing people to each other and getting something started.','leader'],['In a corner, deep in conversation with one person.','sage']]],
+ ['The last time someone complained to you about a rule that made no sense, what did you do first?',1,[['Asked how it was affecting them.','healer'],['Worked out a better way the process could run.','engineer'],['Figured out how they could win anyway, inside the rule.','challenger'],['Asked who made the rule and why anyone still follows it.','rebel']]],
+ ['You get a free year and enough money to live on. What do you do with it?',0,[['Build the thing I have been wanting to make.','engineer'],['Gather a team and take on something too big for one person.','leader'],['Go somewhere I have never been, with no fixed plan.','explorer'],['Develop an idea that could change how people live in twenty years.','visionary']]],
+ ['Which compliment would mean the most to you?',0,[['"You held us all together."','leader'],['"Nobody has ever done it that well."','challenger'],['"That is beautiful. I have never seen anything like it."','creator'],['"You stood up for us when it counted."','warrior']]],
+ ['The last time you opened a new game or app, what did you do first?',1,[['Went straight for the hardest level.','challenger'],['Wandered around to see everything there was.','explorer'],['Read how it worked before touching anything.','sage'],['Showed it to a friend so we could try it together.','entertainer']]],
+ ['Which of these bothers you the most?',0,[['Doing the same thing every single day.','explorer'],['Careless, ugly work.','creator'],['Hearing "that is just how it is done."','rebel'],['Seeing someone hurt and ignored.','healer']]],
+ ['The last time a friend shared a brand new idea with you, what did you do first?',1,[['Started sketching what it could look like.','creator'],['Asked questions to see if it held up.','sage'],['Imagined how big it could become.','visionary'],['Worked out how to build it.','engineer']]],
+ ['Think of the last time a group you were in was about to make a decision you thought was wrong. What did you do?',1,[['Calmly laid out the facts.','sage'],['Said it plainly, even though it made things awkward.','rebel'],['Fought for the people who would have been hurt by it.','warrior'],['Offered a different plan and got people behind it.','leader']]],
+ ['What would you most like to be remembered for?',0,[['Breaking a rule that needed breaking.','rebel'],['Seeing something coming before anyone else did.','visionary'],['Making people\'s lives brighter.','entertainer'],['Mastering something almost nobody can do.','challenger']]],
+ ['The last time a friend\'s plan failed badly, what did you bring them?',1,[['A picture of what could come next.','visionary'],['A push: get up, we go again tomorrow.','warrior'],['Time, a meal, and a listening ear.','healer'],['An invitation to go somewhere new and clear their head.','explorer']]],
+ ['Think of the last group trip or outing you were on. What role did you fall into?',1,[['The one who kept us going when people got tired.','warrior'],['The one checking that everyone was okay.','healer'],['The one who turned it into a goal: reach the top, beat the time.','challenger'],['The one who suggested the detour.','explorer']]],
+ ['How did you spend your last completely free weekend?',1,[['With people, hosting or going out.','entertainer'],['Fixing or building something.','engineer'],['Going somewhere I had not been before.','explorer'],['Making something: drawing, writing, cooking, music.','creator']]],
+ ['The last time you worked in a group, what did people come to you for?',1,[['To talk when they were stressed.','healer'],['To decide what happens next.','leader'],['To make it look or sound good.','creator'],['To explain something or check that it was right.','sage']]],
+ ['The last time you were handed instructions for a task, what did you do?',1,[['Followed them, then improved the steps that wasted time.','engineer'],['Tried to finish faster or better than expected.','challenger'],['Read them all the way through first to understand why.','sage'],['Set them aside and did it my own way.','rebel']]],
+ ['Think of the last time you were bored at work or school. What did you do about it?',1,[['Started organizing something with other people.','leader'],['Went looking for something new to learn or try.','explorer'],['Questioned why we were doing it this way at all.','rebel'],['Daydreamed about a completely different way things could be.','visionary']]],
+ ['Think of the last thing you were truly proud of. Why were you proud?',1,[['It was hard, and I got good at it.','challenger'],['I made something that was truly mine.','creator'],['I saw a possibility others missed, and it turned out right.','visionary'],['I stood firm for someone when it was difficult.','warrior']]],
+ ['The last time something risky or scary came up, how did you react?',1,[['Got curious and moved toward it.','explorer'],['Stepped back to understand it first.','sage'],['Faced it head on.','warrior'],['Made light of it so everyone could breathe.','entertainer']]],
+ ['Think of the last thing you posted or shared with a group. What was it?',1,[['Something I made.','creator'],['An opinion I knew some people would not like.','rebel'],['Something funny.','entertainer'],['Encouragement or support for someone.','healer']]],
+ ['The last time a friend came to you with a problem, what did you actually do?',1,[['Helped them understand what was really going on.','sage'],['Helped them see where they could be in a year.','visionary'],['Mostly listened.','healer'],['Gave them practical steps to fix it.','engineer']]],
+ ['The last time you saw something being done badly, what did you do?',1,[['Said out loud that it was wrong.','rebel'],['Stepped in and took on the hard part myself.','warrior'],['Quietly fixed it.','engineer'],['Got the right people together to sort it out.','leader']]],
+ ['Think of the last time you convinced someone of something. How did you do it?',1,[['Painted a picture of how good it could be.','visionary'],['Charmed them and made it fun.','entertainer'],['Showed them the plan and their part in it.','leader'],['Proved it by doing it myself first.','challenger']]]
+];
+
+const QUESTS = [
+ ['Build Quest','Make an app, a tool, or a physical product.',['visionary','engineer','challenger']],
+ ['Venture Quest','Start a business or a nonprofit.',['leader','engineer','entertainer']],
+ ['Gathering Quest','Organize a festival, a meetup, or a neighborhood event.',['leader','entertainer','healer']],
+ ['Cause Quest','Change something unfair: a campaign, a petition, a local reform.',['rebel','leader','warrior']],
+ ['Story Quest','Make a film, a book, a podcast, or a game.',['creator','visionary','entertainer']],
+ ['Discovery Quest','Research a question, investigate a mystery, or learn a new field together.',['sage','explorer','challenger']],
+ ['Rescue Quest','Help in a crisis: a fundraiser, disaster relief, supporting a family in need.',['healer','warrior','engineer']],
+ ['Journey Quest','An expedition, a group trip, or a shared physical challenge.',['explorer','warrior','healer']],
+ ['Truth Quest','Investigate and expose something hidden: fact-checking, an audit, investigative reporting.',['rebel','sage','explorer']],
+ ['Reinvention Quest','Rethink something outdated: a school program, a tradition, a public space.',['rebel','visionary','creator']],
+ ['Teaching Quest','Run a workshop, mentor a group, or build a course.',['sage','creator','healer']],
+ ['Legacy Quest','Restore an old building, preserve a craft, or record a community\'s history.',['sage','creator','challenger']]
+];
+
+const KEY = 'archetype-quiz-v1';
+const $ = id => document.getElementById(id);
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const dot = k => { const d = el('span','dot'); d.style.background = A[k].c; return d; };
+const chip = (k, missing) => { const c = el('span','chip' + (missing ? ' missing' : '')); c.append(dot(k), document.createTextNode(A[k].n)); return c; };
+
+function shuffled() { const a = [0,1,2,3]; for (let i = 3; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function fresh() { return { i: 0, picks: Q.map(() => []), order: Q.map(shuffled), done: false }; }
+function load() { try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.picks && s.picks.length === Q.length && s.order) return s; } catch (e) {} return null; }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+let S = load() || fresh();
+
+function show(name) { ['intro','quiz','result'].forEach(n => { $(n).hidden = n !== name; }); window.scrollTo(0, 0); }
+
+function renderQ() {
+  const [text, past, answers] = Q[S.i];
+  $('qCount').textContent = 'Question ' + (S.i + 1) + ' of ' + Q.length;
+  $('bar').style.width = (S.i / Q.length * 100) + '%';
+  $('qText').textContent = text;
+  $('qHint').textContent = (past ? 'Never happened? Pick the closest thing you remember, or skip. ' : '') + 'Tap a second answer if it also fits.';
+  const box = $('answers'); box.textContent = '';
+  const picks = S.picks[S.i];
+  S.order[S.i].forEach(ai => {
+    const b = el('button','answer'); b.type = 'button';
+    const r = picks.indexOf(ai);
+    if (r === 0) b.classList.add('r1'); if (r === 1) b.classList.add('r2');
+    b.setAttribute('aria-pressed', r >= 0 ? 'true' : 'false');
+    b.append(el('span','t',answers[ai][0]), el('span','rank', r === 1 ? '2nd' : '1st'));
+    b.addEventListener('click', () => {
+      const p = S.picks[S.i], at = p.indexOf(ai);
+      if (at >= 0) p.splice(at, 1); else if (p.length < 2) p.push(ai); else p[1] = ai;
+      save(); renderQ();
+    });
+    box.append(b);
+  });
+  $('nextBtn').disabled = picks.length === 0;
+  $('nextBtn').textContent = S.i === Q.length - 1 ? 'See my blend' : 'Next';
+  $('backBtn').disabled = S.i === 0;
+}
+
+function advance() {
+  if (S.i < Q.length - 1) { S.i++; save(); renderQ(); window.scrollTo(0, 0); }
+  else { S.done = true; save(); renderResult(); show('result'); }
+}
+
+function blend() {
+  const score = {}; ORDER.forEach(k => score[k] = 0);
+  S.picks.forEach((p, qi) => p.forEach((ai, r) => { score[Q[qi][2][ai][1]] += r === 0 ? 2 : 1; }));
+  const top = ORDER.filter(k => score[k] > 0).sort((a, b) => score[b] - score[a]).slice(0, 4);
+  const total = top.reduce((s, k) => s + score[k], 0);
+  const out = top.map(k => ({ k, pct: Math.round(score[k] / total * 100) }));
+  if (out.length) out[0].pct += 100 - out.reduce((s, o) => s + o.pct, 0);
+  return out;
+}
+
+function listNames(keys) { const n = keys.map(k => 'a ' + A[k].n); return n.length > 1 ? n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1] : n[0]; }
+
+function renderResult() {
+  const B = blend();
+  const bar = $('blendBar'), rows = $('blendRows'), panel = $('mainPanel'), quests = $('quests');
+  [bar, rows, panel, quests].forEach(e => e.textContent = '');
+  $('copyNote').textContent = '';
+  if (!B.length) {
+    $('rTitle').textContent = 'No answers yet';
+    $('rLead').textContent = 'You skipped every question, so there is nothing to score. Retake the quiz and answer at least a few.';
+    panel.hidden = true; return;
+  }
+  panel.hidden = false;
+  const main = A[B[0].k];
+  $('rTitle').textContent = 'The ' + main.n;
+  $('rLead').textContent = B.length > 1
+    ? 'Your main archetype is the ' + main.n + ', with ' + B.slice(1).map(o => A[o.k].n).join(', ') + ' in the mix.'
+    : 'Every answer you gave pointed to one archetype.';
+  B.forEach(o => {
+    const seg = el('i'); seg.style.background = A[o.k].c; seg.style.width = o.pct + '%'; bar.append(seg);
+    const r = el('div','blendrow');
+    r.append(dot(o.k), el('h3', null, A[o.k].n), el('span','pct', o.pct + '%'), el('p','gift muted', A[o.k].gift));
+    rows.append(r);
+  });
+  const mine = B.map(o => o.k);
+  const kv = (label, node) => { const d = el('div','kv'); d.append(el('p','label',label), node); return d; };
+  const needWrap = el('div','chips'); main.needs.forEach(k => needWrap.append(chip(k, !mine.includes(k))));
+  panel.append(
+    el('h2', null, 'As a ' + main.n),
+    kv('Your gift', el('p', null, main.gift)),
+    kv('Your gap', el('p', null, main.gap)),
+    kv('Shows up as', el('p', null, main.sub)),
+    kv('Who covers your gap', needWrap)
+  );
+  QUESTS.map(q => ({ q, hit: q[2].filter(k => mine.includes(k)) }))
+    .filter(x => x.hit.length).sort((a, b) => b.hit.length - a.hit.length)
+    .forEach(({ q, hit }) => {
+      const d = el('div','quest'), chips = el('div','chips');
+      q[2].forEach(k => chips.append(chip(k, !mine.includes(k))));
+      const miss = q[2].filter(k => !mine.includes(k));
+      d.append(el('h3', null, q[0]), el('p','muted', q[1]), chips,
+        el('p', null, miss.length ? 'You cover ' + hit.length + ' of 3. Find ' + listNames(miss) + '.' : 'Your blend covers all three core roles.'));
+      quests.append(d);
+    });
+}
+
+function resultText() {
+  const B = blend();
+  return 'My archetype blend: ' + B.map(o => A[o.k].n + ' ' + o.pct + '%').join(', ') + '.';
+}
+
+$('startBtn').addEventListener('click', () => { if (S.done) { renderResult(); show('result'); } else { renderQ(); show('quiz'); } });
+$('restartIntroBtn').addEventListener('click', () => { S = fresh(); save(); renderQ(); show('quiz'); });
+$('nextBtn').addEventListener('click', advance);
+$('skipBtn').addEventListener('click', () => { S.picks[S.i] = []; advance(); });
+$('backBtn').addEventListener('click', () => { if (S.i > 0) { S.i--; save(); renderQ(); } });
+$('retakeBtn').addEventListener('click', () => { S = fresh(); save(); renderQ(); show('quiz'); });
+$('copyBtn').addEventListener('click', () => {
+  const t = resultText(), note = $('copyNote');
+  const fallback = () => { note.textContent = t; const r = document.createRange(); r.selectNodeContents(note); const s = getSelection(); s.removeAllRanges(); s.addRange(r); };
+  try { navigator.clipboard.writeText(t).then(() => { note.textContent = 'Copied: ' + t; }, fallback); } catch (e) { fallback(); }
+});
+
+ORDER.forEach(k => $('allChips').append(chip(k)));
+const started = S.picks.some(p => p.length) || S.i > 0;
+if (S.done) { $('startBtn').textContent = 'See my result'; $('restartIntroBtn').hidden = false; }
+else if (started) { $('startBtn').textContent = 'Continue the quiz'; $('restartIntroBtn').hidden = false; }
+</script>
+
+</body>
+</html>
